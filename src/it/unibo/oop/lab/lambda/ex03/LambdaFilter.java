@@ -6,7 +6,9 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.LayoutManager;
 import java.awt.Toolkit;
+import java.util.Arrays;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -33,9 +35,17 @@ import javax.swing.JTextArea;
 public final class LambdaFilter extends JFrame {
 
     private static final long serialVersionUID = 1760990730218643730L;
-
+    private static final String ANY_NON_WORD = "(\\s|\\p{Punct})+";
+    
     private enum Command {
-        IDENTITY("No modifications", Function.identity());
+        IDENTITY("No modifications", Function.identity()),
+    	TO_LOWER("Convert to lowercase",s-> s.toLowerCase()),
+    	COUNT_CHAR("Count the number of chars",s-> String.valueOf(s.length())),
+    	COUNT_LINES("Count the number of lines",s-> String.valueOf(s.chars().filter(i-> i == '\n').count()+1)),
+    	WORDS_LIST("List all the words in alphabetical order",s->Arrays.stream(s.split(ANY_NON_WORD)).sorted().collect(Collectors.joining("\n"))),
+    	WORDS_COUNT("Count the words", s->Arrays.stream(s.split(ANY_NON_WORD)).collect(Collectors.groupingBy(Function.identity(),Collectors.counting()))
+    			.entrySet().stream().map(i -> i.getKey() + " -> " + i.getValue()).collect(Collectors.joining("\n"))
+    			);
 
         private final String commandName;
         private final Function<String, String> fun;
